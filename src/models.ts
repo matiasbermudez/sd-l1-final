@@ -1,5 +1,7 @@
 import * as jsonfile from "jsonfile";
 import "../pelis.json";
+
+type SearchOptions = { title?: string; tag?: string };
 class Peli {
   id: number;
   title: string;
@@ -9,19 +11,20 @@ class Peli {
 class PelisCollection {
   data: Peli[] = []
 
-  load(): Promise<Peli[]> {
+  getAll(): Promise<Peli[]> {
     return jsonfile.readFile('../pelis.json').then((data) => {
       const respuesta: Peli[] = data;
       this.data = data
-      return console.log("SeCargoData");
+       console.log("SeCargoData");
+       return data
     }).catch(error => {
       console.error("El error al cargar data fue: ", error)
     })
   }
 
-  getAll():Peli[] {
-    return this.data
-  }
+  // getAll():Peli[] {
+  //   return this.data
+  // }
   getById(id: number): Promise<Peli> {
     return new Promise((resolve) => {
       const encontrado: Peli = this.data.find((peli) =>  peli.id == id  )
@@ -54,9 +57,37 @@ class PelisCollection {
     })
     return agregandoPeli
   }
+  async search(options:SearchOptions):Promise<Peli[]>{
+
+    const lista = await this.getAll();
+    
+    
+     if(options.title){
+         const arrayCoincidencias: Peli[]  = lista.filter( elemento => 
+                elemento.title.toLowerCase().includes(options.title.toLowerCase()) )
+            return arrayCoincidencias
+      }
+      else if(options.tag){
+        const coincidencia = lista.filter(elemento => {
+          let coincide = false
+
+          //RECORRO EL ARRAY DE TAGS DENTRO DE ELEMENTO Y SI COINCIDE DEVUELVO TRUE
+            elemento.tags.forEach(element => {
+              if(element == options.tag){
+                return coincide = true
+              }})
+
+            //SI COINCIDE ES TRUE RETORNO EL ELEMENTO(EL OBJETO CON SU TITLE, TAGS Y ID)
+            if(coincide){
+              return elemento
+            }
+        })
+        return coincidencia
+      }
+  }
 }
 
-//  const prueba = new PelisCollection()
+// const prueba = new PelisCollection()
 // let peliDePrueba = new Peli
 
 // peliDePrueba = {
@@ -77,6 +108,23 @@ class PelisCollection {
 // })
 //     .catch(error => console.error("ERROR: ", error))
 // })
+
+
+
+// async function buscarPelis() {
+//   const opciones: SearchOptions = { tag: "apta para mayores"}
+//   try{
+//     const resultado = await prueba.search(opciones)
+//     return resultado
+//   }catch(error){
+//     console.error("El Error: ", error)
+//   }
+// }
+
+// console.log(buscarPelis().then(
+//   resultado => { console.log(resultado)}
+// ))
+
 
   
 
