@@ -15,7 +15,6 @@ class PelisCollection {
     return jsonfile.readFile('../pelis.json').then((data) => {
       const respuesta: Peli[] = data;
       this.data = data
-       console.log("SeCargoData");
        return data
     }).catch(error => {
       console.error("El error al cargar data fue: ", error)
@@ -25,7 +24,8 @@ class PelisCollection {
   // getAll():Peli[] {
   //   return this.data
   // }
-  getById(id: number): Promise<Peli> {
+  async getById(id: number): Promise<Peli> {
+     this.data = await this.getAll();
     return new Promise((resolve) => {
       const encontrado: Peli = this.data.find((peli) =>  peli.id == id  )
       if (encontrado) {
@@ -60,6 +60,7 @@ class PelisCollection {
   async search(options:SearchOptions):Promise<Peli[]>{
 
     const lista = await this.getAll();
+    console.log("optionsSEARCH:", options)
     
     
      if(options.title){
@@ -70,7 +71,6 @@ class PelisCollection {
       else if(options.tag){
         const coincidencia = lista.filter(elemento => {
           let coincide = false
-
           //RECORRO EL ARRAY DE TAGS DENTRO DE ELEMENTO Y SI COINCIDE DEVUELVO TRUE
             elemento.tags.forEach(element => {
               if(element == options.tag){
